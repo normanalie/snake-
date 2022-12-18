@@ -13,14 +13,14 @@
 #define NO_KEY -1
 
 /* Fonctions permettant de changer le flot d'entrée et de le réinitialiser*/
-void   init_keyboard(void);
-void   close_keyboard(void);
-int    keyboard_hit(void);
-char   readch(void);
+void init_keyboard(void);
+void close_keyboard(void);
+int keyboard_hit(void);
+char readch(void);
 
 /*Fonction qui renvoie une touche pressée par l'utilisateur
  * Renvoie la valeur NO_KEY si aucune touche n'a été appuyée
  * pendant le temps DELAY_KEY_DETECTION (en secondes)*/
 char pressing_key(void);
 
-#endif 
+#endif

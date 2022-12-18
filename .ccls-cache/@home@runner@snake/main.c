@@ -1,17 +1,24 @@
+#include "gestion_clavier.h"
 #include <stdio.h>
 #include <stdlib.h>
 
 // Afficher board OK
 // Afficher serpent L=3
 // Avancer serpent
-
 // Diriger serpent
+
 // Collision serpent
 // Afficher fruit
 // Grandir serpent
 // Generer fruit
 // Afficher game over
 // Afficher menu
+
+#define KUP 'z'
+#define KDOWN 's'
+#define KLEFT 'q'
+#define KRIGHT 'd'
+#define KESC 27
 
 #define BOARD_HEIGHT 15
 #define BOARD_WIDTH 25
@@ -54,14 +61,35 @@ void print_board(char board[BOARD_HEIGHT][BOARD_WIDTH]);
 int main(void) {
   Snake snake;
   char board[BOARD_HEIGHT][BOARD_WIDTH];
+  char key;
+
   init_snake(&snake, 11, 6);
   init_board(board);
   update(board, &snake, NULL);
   print_board(board);
 
-  append_snake(&snake);
-  update(board, &snake, NULL);
-  print_board(board);
+  do {
+    key = pressing_key();
+    if (key != NO_KEY) {
+      switch (key) {
+      case KUP:
+        snake.direction = UP;
+        break;
+      case KDOWN:
+        snake.direction = DOWN;
+        break;
+      case KLEFT:
+        snake.direction = LEFT;
+        break;
+      case KRIGHT:
+        snake.direction = RIGHT;
+        break;
+      }
+    }
+    update_snake(&snake);
+    update(board, &snake, NULL);
+    print_board(board);
+  } while (key != KESC);
   return 0;
 }
 
