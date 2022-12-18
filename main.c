@@ -11,6 +11,7 @@
 // Afficher fruit
 // Grandir serpent
 // Generer fruit
+// Self collide
 
 // Afficher game over
 // Afficher menu
@@ -92,7 +93,11 @@ int main(void) {
         break;
       }
     }
-    update_snake(&snake);
+
+    if (update_snake(&snake) == 1) { // Self-collide
+      return 1;
+    }
+
     int err = update(board, &snake, &apple);
     if (err == 1) { // Colide
       return 1;
@@ -215,12 +220,12 @@ int update(char board[BOARD_HEIGHT][BOARD_WIDTH], Snake *snake, Apple *apple) {
 }
 
 int update_snake(Snake *snake) {
-  // Browse each element and increment coordinate
+  // Browse each element and give it previous element's corrdinates
   Body *elem = snake->head;
   int prev_x = 0;
   int prev_y = 0;
   while (elem != NULL) {
-    if (elem->is_head) {
+    if (elem->is_head) { // Increment head coordinate and tail collision
       prev_x = elem->x;
       prev_y = elem->y;
       if (snake->direction == RIGHT) {
@@ -231,6 +236,13 @@ int update_snake(Snake *snake) {
         elem->y = elem->y - 1;
       } else if (snake->direction == DOWN) {
         elem->y = elem->y + 1;
+      }
+      Body *tail_elem = elem->next;
+      while (tail_elem != NULL) {
+        if (elem->x == tail_elem->x && elem->y == tail_elem->y) {
+          return 1;
+        }
+        tail_elem = tail_elem->next;
       }
     } else {
       int tmp_x = elem->x;
