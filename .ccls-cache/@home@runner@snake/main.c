@@ -13,10 +13,15 @@
 // Afficher menu
 
 #define BOARD_HEIGHT 15
-#define BOARD_WIDTH 22
+#define BOARD_WIDTH 25
 #define BOARD_WALL 'X'
 #define SNAKE_HEAD '@'
 #define SNAKE_BODY '*'
+
+#define LEFT 0
+#define RIGHT 1
+#define UP 2
+#define DOWN 3
 
 typedef struct Body Body;
 struct Body {
@@ -35,18 +40,28 @@ typedef struct {
 
 void init_snake(Snake *snake, int x, int y);
 int append_snake(Snake *snake);
-void display(int width, int height, char wall, Snake *snake);
+int update_snake(char board[BOARD_HEIGHT][BOARD_WIDTH], Snake *snake);
+void init_board(char board[BOARD_HEIGHT][BOARD_WIDTH]);
+void print_board(char board[BOARD_HEIGHT][BOARD_WIDTH]);
 
 int main(void) {
   Snake snake;
-  init_snake(&snake, 2, 10);
-  display(BOARD_WIDTH, BOARD_HEIGHT, BOARD_WALL, &snake);
+  char board[BOARD_HEIGHT][BOARD_WIDTH];
+  init_snake(&snake, 11, 6);
+  init_board(board);
+  update_snake(board, &snake);
+  print_board(board);
+
+  append_snake(&snake);
+  update_snake(board, &snake);
+  print_board(board);
+
   return 0;
 }
 
 void init_snake(Snake *snake, int x, int y) {
   snake->len = 1;
-  snake->direction = 1;
+  snake->direction = RIGHT;
   snake->score = 0;
   Body *head = malloc(sizeof(*head));
   if (head == NULL) {
@@ -60,34 +75,83 @@ void init_snake(Snake *snake, int x, int y) {
   return;
 }
 
-int append_snake(Snake *snake) { return 0; }
-
-void display(int width, int height, char wall, Snake *snake) {
-  for (int i = 0; i <= height; i++) {
-    for (int j = 0; j <= width; j++) {
-      // WALLS
-      if (i == 0 || i == height) {
-        printf("%c", wall);
-      } else if (j == 0 || j == width) {
-        printf("%c", wall);
+void init_board(char board[BOARD_HEIGHT][BOARD_WIDTH]) {
+  for (int i = 0; i < BOARD_HEIGHT; i++) {
+    for (int j = 0; j < BOARD_WIDTH; j++) {
+      if (i == 0 || i == BOARD_HEIGHT - 1) {
+        board[i][j] = BOARD_WALL;
+      } else if (j == 0 || j == BOARD_WIDTH - 1) {
+        board[i][j] = BOARD_WALL;
       } else {
-        Body *snake_body = snake->head;
-        while (snake_body != NULL) {
-          if (snake_body->x == j && snake_body->y == i) {
-            printf("%c", snake_body->is_head == 1 ? SNAKE_HEAD : SNAKE_BODY);
-          } else {
-            printf(" ");
-          }
-          snake_body = snake_body->next;
-        }
+        board[i][j] = ' ';
       }
-      // INSIDE
+    }
+  }
+  return;
+}
 
+void print_board(char board[BOARD_HEIGHT][BOARD_WIDTH]) {
+  for (int i = 0; i < BOARD_HEIGHT; i++) {
+    for (int j = 0; j < BOARD_WIDTH; j++) {
+      printf("%c", board[i][j]);
       // EOL
-      if (j == width) {
+      if (j == BOARD_WIDTH - 1) {
         printf("\n");
       }
     }
   }
   return;
+}
+
+int append_snake(Snake *snake) {
+  // Append element at the end of the snake
+  // New elem
+  Body *new_elem = malloc(sizeof(*new_elem));
+  if (new_elem == NULL) {
+    exit(EXIT_FAILURE);
+  }
+  new_elem->is_head = 0;
+  new_elem->next = NULL;
+
+  // Go to the end and add new_elem
+  Body *last_elem = snake->head;
+  while (last_elem->next != NULL) {
+    last_elem = last_elem->next;
+  }
+  last_elem->next = new_elem;
+
+  // Calc new_elem coordinates
+  if (snake->direction == RIGHT) {
+    new_elem->x = last_elem->x - 1;
+    new_elem->y = last_elem->y;
+  } else if (snake->direction == LEFT) {
+    new_elem->x = last_elem->x + 1;
+    new_elem->y = last_elem->y;
+  } else if (snake->direction == UP) {
+    new_elem->x = last_elem->x;
+    new_elem->y = last_elem->y + 1;
+  } else if (snake->direction == DOWN) {
+    new_elem->x = last_elem->x;
+    new_elem->y = last_elem->y - 1;
+  }
+  return 0;
+}
+
+int update_snake(char board[BOARD_HEIGHT][BOARD_WIDTH], Snake *snake) {
+  // Snake is inside the board. Snake position can vary from 0 to board_size - 3
+  Body *elem = snake->head;
+  while (elem != NULL) {
+    if (elem->x >= 0 && elem->x <= BOARD_WIDTH - 3 && elem->y >= 0 &&
+        elem->y <= BOARD_HEIGHT - 3) {
+      if (elem->is_head) {
+        board[elem->y + 1][elem->x + 1] = SNAKE_HEAD;
+      } else {
+        board[elem->y + 1][elem->x + 1] = SNAKE_BODY;
+      }
+      elem = elem->next;
+    } else {
+      return 1;
+    }
+  }
+  return 0;
 }

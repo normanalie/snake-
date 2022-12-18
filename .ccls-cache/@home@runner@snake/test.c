@@ -18,7 +18,7 @@ int main() {
       printf("La touche %c a été appuyée...\n", key);
     }
 
-  } while (key != 27);
+  } while (key != ESC);
 
   printf("##\nle programme est terminé.\n");
   return 0;

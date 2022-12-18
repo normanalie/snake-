@@ -1,3 +1,4 @@
 .replit
 .nix
 /.ccls-cache
+.out
