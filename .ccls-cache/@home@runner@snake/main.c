@@ -12,8 +12,9 @@
 // Grandir serpent
 // Generer fruit
 // Self collide
-
 // Afficher game over
+
+// Save best scores
 // Afficher menu
 
 #define KUP 'z'
@@ -60,6 +61,7 @@ int update_snake(Snake *snake);
 int update(char board[BOARD_HEIGHT][BOARD_WIDTH], Snake *snake, Apple *apple);
 void init_board(char board[BOARD_HEIGHT][BOARD_WIDTH]);
 void print_board(char board[BOARD_HEIGHT][BOARD_WIDTH]);
+void print_gameover(int score);
 
 int main(void) {
   Snake snake;
@@ -95,12 +97,14 @@ int main(void) {
     }
 
     if (update_snake(&snake) == 1) { // Self-collide
-      return 1;
+      print_gameover(snake.score);
+      return 0;
     }
 
     int err = update(board, &snake, &apple);
     if (err == 1) { // Colide
-      return 1;
+      print_gameover(snake.score);
+      return 0;
     } else if (err == 2) { // Apple
       append_snake(&snake);
       snake.score++;
@@ -256,4 +260,20 @@ int update_snake(Snake *snake) {
     elem = elem->next;
   }
   return 0;
+}
+
+void print_gameover(int score) {
+  printf("\n\n"
+         " ██████   █████  ███    ███ ███████      ██████  ██    ██ ███████ "
+         "██████  \n"
+         "██       ██   ██ ████  ████ ██          ██    ██ ██    ██ ██      ██ "
+         "  ██ \n"
+         "██   ███ ███████ ██ ████ ██ █████       ██    ██ ██    ██ █████   "
+         "██████  \n"
+         "██    ██ ██   ██ ██  ██  ██ ██          ██    ██  ██  ██  ██      ██ "
+         "  ██ \n"
+         " ██████  ██   ██ ██      ██ ███████      ██████    ████   ███████ ██ "
+         "  ██ \n");
+  printf("\n\n Your score is: %d \n\n", score);
+  return;
 }
