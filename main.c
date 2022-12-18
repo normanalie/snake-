@@ -1,4 +1,5 @@
 #include "gestion_clavier.h"
+#include "random.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -7,10 +8,10 @@
 // Avancer serpent
 // Diriger serpent
 // Collision serpent
-
 // Afficher fruit
 // Grandir serpent
 // Generer fruit
+
 // Afficher game over
 // Afficher menu
 
@@ -24,7 +25,8 @@
 #define BOARD_WIDTH 25
 #define BOARD_WALL 'X'
 #define SNAKE_HEAD '@'
-#define SNAKE_BODY '*'
+#define SNAKE_BODY 'o'
+#define APPLE '*'
 
 #define LEFT 0
 #define RIGHT 1
@@ -54,18 +56,22 @@ typedef struct {
 void init_snake(Snake *snake, int x, int y);
 int append_snake(Snake *snake);
 int update_snake(Snake *snake);
-int update(char board[BOARD_HEIGHT][BOARD_WIDTH], Snake *snake, Apple *apple[]);
+int update(char board[BOARD_HEIGHT][BOARD_WIDTH], Snake *snake, Apple *apple);
 void init_board(char board[BOARD_HEIGHT][BOARD_WIDTH]);
 void print_board(char board[BOARD_HEIGHT][BOARD_WIDTH]);
 
 int main(void) {
   Snake snake;
+  Apple apple;
   char board[BOARD_HEIGHT][BOARD_WIDTH];
   char key;
-
   init_snake(&snake, 11, 6);
   init_board(board);
-  update(board, &snake, NULL);
+  do {
+    apple.x = randint(0, BOARD_WIDTH - 3);
+    apple.y = randint(0, BOARD_HEIGHT - 3);
+  } while (update(board, &snake, &apple) == 2);
+
   print_board(board);
 
   do {
@@ -87,9 +93,16 @@ int main(void) {
       }
     }
     update_snake(&snake);
-    int colide = update(board, &snake, NULL);
-    if (colide) {
+    int err = update(board, &snake, &apple);
+    if (err == 1) { // Colide
       return 1;
+    } else if (err == 2) { // Apple
+      append_snake(&snake);
+      snake.score++;
+      do {
+        apple.x = randint(0, BOARD_WIDTH - 3);
+        apple.y = randint(0, BOARD_HEIGHT - 3);
+      } while (update(board, &snake, &apple) == 2);
     }
     print_board(board);
   } while (key != KESC);
@@ -174,8 +187,7 @@ int append_snake(Snake *snake) {
   return 0;
 }
 
-int update(char board[BOARD_HEIGHT][BOARD_WIDTH], Snake *snake,
-           Apple *apple[]) {
+int update(char board[BOARD_HEIGHT][BOARD_WIDTH], Snake *snake, Apple *apple) {
   init_board(board);
   // Snake is inside the board. Snake position can vary from 0 to board_size - 3
   Body *elem = snake->head;
@@ -191,6 +203,13 @@ int update(char board[BOARD_HEIGHT][BOARD_WIDTH], Snake *snake,
     } else {
       return 1;
     }
+  }
+
+  // Check apple position and add apple if empty, else return 2
+  if (board[apple->y][apple->x] == ' ') {
+    board[apple->y][apple->x] = APPLE;
+  } else {
+    return 2;
   }
   return 0;
 }
