@@ -4,6 +4,7 @@
 // Afficher board OK
 // Afficher serpent L=3
 // Avancer serpent
+
 // Diriger serpent
 // Collision serpent
 // Afficher fruit
@@ -38,9 +39,15 @@ typedef struct {
   Body *head;
 } Snake;
 
+typedef struct {
+  int x;
+  int y;
+} Apple;
+
 void init_snake(Snake *snake, int x, int y);
 int append_snake(Snake *snake);
-int update_snake(char board[BOARD_HEIGHT][BOARD_WIDTH], Snake *snake);
+int update_snake(Snake *snake);
+int update(char board[BOARD_HEIGHT][BOARD_WIDTH], Snake *snake, Apple *apple[]);
 void init_board(char board[BOARD_HEIGHT][BOARD_WIDTH]);
 void print_board(char board[BOARD_HEIGHT][BOARD_WIDTH]);
 
@@ -49,13 +56,12 @@ int main(void) {
   char board[BOARD_HEIGHT][BOARD_WIDTH];
   init_snake(&snake, 11, 6);
   init_board(board);
-  update_snake(board, &snake);
+  update(board, &snake, NULL);
   print_board(board);
 
   append_snake(&snake);
-  update_snake(board, &snake);
+  update(board, &snake, NULL);
   print_board(board);
-
   return 0;
 }
 
@@ -137,7 +143,9 @@ int append_snake(Snake *snake) {
   return 0;
 }
 
-int update_snake(char board[BOARD_HEIGHT][BOARD_WIDTH], Snake *snake) {
+int update(char board[BOARD_HEIGHT][BOARD_WIDTH], Snake *snake,
+           Apple *apple[]) {
+  init_board(board);
   // Snake is inside the board. Snake position can vary from 0 to board_size - 3
   Body *elem = snake->head;
   while (elem != NULL) {
@@ -152,6 +160,38 @@ int update_snake(char board[BOARD_HEIGHT][BOARD_WIDTH], Snake *snake) {
     } else {
       return 1;
     }
+  }
+  return 0;
+}
+
+int update_snake(Snake *snake) {
+  // Browse each element and increment coordinate
+  Body *elem = snake->head;
+  int prev_x = 0;
+  int prev_y = 0;
+  while (elem != NULL) {
+    if (elem->is_head) {
+      prev_x = elem->x;
+      prev_y = elem->y;
+      if (snake->direction == RIGHT) {
+        elem->x = elem->x + 1;
+      } else if (snake->direction == LEFT) {
+        elem->x = elem->x - 1;
+      } else if (snake->direction == UP) {
+        elem->y = elem->y - 1;
+      } else if (snake->direction == DOWN) {
+        elem->y = elem->y + 1;
+      }
+    } else {
+      int tmp_x = elem->x;
+      int tmp_y = elem->y;
+      elem->x = prev_x;
+      elem->y = prev_y;
+      prev_x = tmp_x;
+      prev_y = tmp_y;
+    }
+
+    elem = elem->next;
   }
   return 0;
 }
