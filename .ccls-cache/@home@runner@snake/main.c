@@ -73,16 +73,16 @@ int main(void) {
     if (key != NO_KEY) {
       switch (key) {
       case KUP:
-        snake.direction = UP;
+        snake.direction = snake.direction != DOWN ? UP : DOWN;
         break;
       case KDOWN:
-        snake.direction = DOWN;
+        snake.direction = snake.direction != UP ? DOWN : UP;
         break;
       case KLEFT:
-        snake.direction = LEFT;
+        snake.direction = snake.direction != RIGHT ? LEFT : RIGHT;
         break;
       case KRIGHT:
-        snake.direction = RIGHT;
+        snake.direction = snake.direction != LEFT ? RIGHT : LEFT;
         break;
       }
     }
