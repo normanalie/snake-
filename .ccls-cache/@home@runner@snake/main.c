@@ -6,8 +6,8 @@
 // Afficher serpent L=3
 // Avancer serpent
 // Diriger serpent
-
 // Collision serpent
+
 // Afficher fruit
 // Grandir serpent
 // Generer fruit
@@ -87,7 +87,10 @@ int main(void) {
       }
     }
     update_snake(&snake);
-    update(board, &snake, NULL);
+    int colide = update(board, &snake, NULL);
+    if (colide) {
+      return 1;
+    }
     print_board(board);
   } while (key != KESC);
   return 0;
