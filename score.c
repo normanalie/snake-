@@ -24,10 +24,6 @@ int save_score(Score *score) {
     i++;
   }
 
-  for (int i = 0; i < MAX_SCORES; i++) {
-    printf("scores[%d] = <%s, %d>\n", i, scores[i].pseudo, scores[i].score);
-  }
-
   // Rewrite scores to file
   FILE *file = NULL;
   file = fopen(FILENAME, "w");

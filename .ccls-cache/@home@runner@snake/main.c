@@ -14,8 +14,8 @@
 // Generer fruit
 // Self collide
 // Afficher game over
-
 // Save best scores
+
 // Afficher menu
 
 #define KUP 'z'
@@ -55,6 +55,7 @@ typedef struct {
   int y;
 } Apple;
 
+void splash_screen();
 void init_snake(Snake *snake, int x, int y);
 int append_snake(Snake *snake);
 int update_snake(Snake *snake);
@@ -69,10 +70,21 @@ int main(void) {
   Apple apple;
   char board[BOARD_HEIGHT][BOARD_WIDTH];
   char key;
-
+  Score bests[MAX_SCORES];
   Score score;
+
   score.score = 0;
-  printf("Entrez votre pseudo: \n");
+  splash_screen();
+  printf("Bests scores:\n");
+  if (get_scores(bests) == 1) {
+    exit(EXIT_FAILURE);
+  }
+  int c = 0;
+  while (bests[c].pseudo[0] != '\0') {
+    printf("    %s: %d\n", bests[c].pseudo, bests[c].score);
+    c++;
+  }
+  printf("\nPseudo: \n");
   scanf("%s", score.pseudo);
 
   init_snake(&snake, 15, 8);
@@ -124,6 +136,7 @@ int main(void) {
         apple.y = randint(0, BOARD_HEIGHT - 3);
       } while (update(board, &snake, &apple) == 2);
     }
+    printf("\nScore: %d  -  Press ESC to quit\n", score.score);
     print_board(board);
   } while (key != KESC);
   return 0;
@@ -296,4 +309,13 @@ void destroy_snake(Snake *snake) {
     elem = next;
   }
   return;
+}
+
+void splash_screen() {
+  printf("███████ ███    ██  █████  ██   ██ ███████ \n"
+         "██      ████   ██ ██   ██ ██  ██  ██      \n"
+         "███████ ██ ██  ██ ███████ █████   █████   \n"
+         "     ██ ██  ██ ██ ██   ██ ██  ██  ██      \n"
+         "███████ ██   ████ ██   ██ ██   ██ ███████ \n"
+         "\n\n");
 }
