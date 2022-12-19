@@ -1,5 +1,6 @@
 #include "gestion_clavier.h"
 #include "random.h"
+#include "score.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -46,7 +47,6 @@ struct Body {
 typedef struct {
   int len;
   int direction;
-  int score;
   Body *head;
 } Snake;
 
@@ -61,6 +61,7 @@ int update_snake(Snake *snake);
 int update(char board[BOARD_HEIGHT][BOARD_WIDTH], Snake *snake, Apple *apple);
 void init_board(char board[BOARD_HEIGHT][BOARD_WIDTH]);
 void print_board(char board[BOARD_HEIGHT][BOARD_WIDTH]);
+void destroy_snake(Snake *snake);
 void print_gameover(int score);
 
 int main(void) {
@@ -68,7 +69,13 @@ int main(void) {
   Apple apple;
   char board[BOARD_HEIGHT][BOARD_WIDTH];
   char key;
-  init_snake(&snake, 11, 6);
+
+  Score score;
+  score.score = 0;
+  printf("Entrez votre pseudo: \n");
+  scanf("%s", score.pseudo);
+
+  init_snake(&snake, 15, 8);
   init_board(board);
   do {
     apple.x = randint(0, BOARD_WIDTH - 3);
@@ -97,17 +104,21 @@ int main(void) {
     }
 
     if (update_snake(&snake) == 1) { // Self-collide
-      print_gameover(snake.score);
+      print_gameover(score.score);
+      // save_score(&score);
+      destroy_snake(&snake);
       return 0;
     }
 
     int err = update(board, &snake, &apple);
     if (err == 1) { // Colide
-      print_gameover(snake.score);
+      print_gameover(score.score);
+      save_score(&score);
+      destroy_snake(&snake);
       return 0;
     } else if (err == 2) { // Apple
       append_snake(&snake);
-      snake.score++;
+      score.score++;
       do {
         apple.x = randint(0, BOARD_WIDTH - 3);
         apple.y = randint(0, BOARD_HEIGHT - 3);
@@ -121,7 +132,6 @@ int main(void) {
 void init_snake(Snake *snake, int x, int y) {
   snake->len = 1;
   snake->direction = RIGHT;
-  snake->score = 0;
   Body *head = malloc(sizeof(*head));
   if (head == NULL) {
     exit(EXIT_FAILURE);
@@ -275,5 +285,15 @@ void print_gameover(int score) {
          " ██████  ██   ██ ██      ██ ███████      ██████    ████   ███████ ██ "
          "  ██ \n");
   printf("\n\n Your score is: %d \n\n", score);
+  return;
+}
+
+void destroy_snake(Snake *snake) {
+  Body *elem = snake->head;
+  while (elem != NULL) {
+    Body *next = elem->next;
+    free(elem);
+    elem = next;
+  }
   return;
 }
